@@ -1,10 +1,6 @@
-# Build Your Own PaaS/IDP on DigitalOcean
+# Build Your Own PaaS/IDP with [Cato Digital](https://cato.digital) Bare Metal Servers
 
-Creating a custom cloud platform brings powerful advantages—cost savings, full control, data sovereignty, and, crucially, the ability to make your solution self-hostable. By using DigitalOcean's affordable infrastructure, you can save thousands per month compared to AWS Lambda, Vercel, Cloudflare, or similar providers.
-
-[![Watch the Video](https://github.com/user-attachments/assets/3fbfd103-bb35-47a2-8f0a-807f09e00adb)](https://www.youtube.com/watch?v=T4b5Vf9V1zQ)
-
-This repository leverages [Spore-drive](https://www.npmjs.com/package/@taubyte/spore-drive) to deploy [Tau](https://github.com/taubyte/tau), an open-source PaaS/IDP, all through code. Read the full guide in [this article](https://medium.com/@fodil.samy/spore-drive-building-a-cloud-platform-in-a-few-lines-of-code-bd3730a95cde).
+Creating a custom cloud platform brings powerful advantages—cost savings, full control, data sovereignty, and, crucially, the ability to make your solution self-hostable. This tool helps you deploy [Tau](https://github.com/taubyte/tau), an open-source PaaS/IDP, across your servers using [Spore-drive](https://www.npmjs.com/package/@taubyte/spore-drive).
 
 ## Getting Started
 
@@ -14,24 +10,60 @@ This repository leverages [Spore-drive](https://www.npmjs.com/package/@taubyte/s
    npm install
    ```
 
-2. **Set Environment Variables**  
-   Configure your DigitalOcean API token and project name:
-   ```bash
-   export DIGITALOCEAN_API_TOKEN="<your DigitalOcean token>"
-   export DIGITALOCEAN_PROJECT_NAME="<your project name>"
-   export DROPLET_ROOT_PASSWORD="<your droplet root pass>"
-   ```
-   > **Note**: This setup will deploy across all droplets within your specified project.
-   
-   If you use Namecheap for domain management, enable automatic DNS updates by providing these variables:
-   ```bash
-   export NAMECHEAP_API_KEY="<your Namecheap API key>"
-   export NAMECHEAP_IP="<your IP address>"
-   export NAMECHEAP_USERNAME="<your Namecheap username>"
+2. **Prepare Server List**  
+   Create a CSV file (default: `cato.csv`) with your server information:
+   ```csv
+   hostname,public_ip
+   server1.example.com,192.168.1.1
+   server2.example.com,192.168.1.2
    ```
 
-3. **Deploy**  
-   Finally, deploy your platform with:
+3. **Configure Environment**  
+   Copy the example environment file and edit it with your values:
+   ```bash
+   cp .env.example .env
+   ```
+
+   The following variables can be configured in your `.env` file:
+   ```bash
+   # Server Configuration
+   SSH_KEY=cato.pem                    # Path to SSH private key
+   SERVERS_CSV_PATH=cato.csv           # Path to servers list
+   CATO_USER=cato-user                 # SSH user for server access
+
+   # Domain Configuration
+   ROOT_DOMAIN=pom.ac                  # Root domain for your platform
+   GENERATED_DOMAIN=g.pom.ac           # Generated subdomain for your platform
+
+   # Namecheap DNS Configuration (Optional)
+   NAMECHEAP_API_KEY=your_api_key
+   NAMECHEAP_IP=your_ip
+   NAMECHEAP_USERNAME=your_username
+   ```
+
+4. **Deploy**  
+   Deploy your platform with:
    ```bash
    npm run displace
    ```
+
+## CSV File Format
+
+The servers CSV file should contain the following columns:
+- `hostname`: The fully qualified domain name of your server
+- `public_ip`: The public IP address of your server
+
+Example:
+```csv
+hostname,public_ip
+node1.mycloud.com,203.0.113.1
+node2.mycloud.com,203.0.113.2
+```
+
+## Server Requirements
+
+- Linux servers with SSH access on port 22
+- User account (defaults to 'cato-user') with:
+  - sudo/root privileges
+  - SSH key authentication enabled
+

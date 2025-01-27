@@ -3,10 +3,16 @@ import {
   CourseConfig,
   Drive,
   TauLatest,
+  TauPath,
   Course,
 } from "@taubyte/spore-drive";
+import fs from "fs";
+import dotenv from "dotenv";
 
-import { Droplets, DropletInfo } from "./do";
+// Load .env file at the start
+dotenv.config();
+
+import { getServersFromCSV } from "./csv";
 import NamecheapDnsClient from "./namecheap";
 
 import { fileURLToPath } from "url";
@@ -76,8 +82,16 @@ async function displayProgress(course: Course) {
 }
 
 export const createConfig = async (config: Config) => {
-  await config.Cloud().Domain().Root().Set("pom.ac");
-  await config.Cloud().Domain().Generated().Set("g.pom.ac");
+  await config
+    .Cloud()
+    .Domain()
+    .Root()
+    .Set(process.env.ROOT_DOMAIN || "pom.ac");
+  await config
+    .Cloud()
+    .Domain()
+    .Generated()
+    .Set(process.env.GENERATED_DOMAIN || "g.pom.ac");
 
   try {
     await config.Cloud().Domain().Validation().Keys().Data().PrivateKey().Get();
@@ -91,9 +105,12 @@ export const createConfig = async (config: Config) => {
     await config.Cloud().P2P().Swarm().Generate();
   }
 
+  // using SSH key for authentication
   const mainAuth = config.Auth().Signer("main");
-  await mainAuth.Username().Set("root");
-  await mainAuth.Password().Set(process.env.DROPLET_ROOT_PASSWORD!);
+  await mainAuth.Username().Set(process.env.CATO_USER || "cato-user");
+  const sshkey = await fs.promises.readFile(process.env.SSH_KEY || "cato.pem");
+  await mainAuth.Key().Path().Set("keys/cato.pem");
+  await mainAuth.Key().Data().Set(sshkey);
 
   const all = config.Shapes().Shape("all");
   await all
@@ -103,11 +120,10 @@ export const createConfig = async (config: Config) => {
   await all.Ports().Port("lite").Set(BigInt(4262));
 
   const hosts = await config.Hosts().List();
-
   const bootstrapers = [];
 
-  for (const droplet of await Droplets()) {
-    const { hostname, publicIp, tags } = DropletInfo(droplet);
+  for (const server of getServersFromCSV()) {
+    const { hostname, publicIp } = server;
     if (!hosts.includes(hostname)) {
       const host = config.Hosts().Host(hostname);
       bootstrapers.push(hostname);
@@ -191,6 +207,7 @@ await config.init();
 
 await createConfig(config);
 
+// Use TauPath("path/to/tau") if you'd like to deploy your own build of tau
 const drive: Drive = new Drive(config, TauLatest);
 
 await drive.init();
@@ -202,7 +219,8 @@ try {
   await course.displace();
   await displayProgress(course);
   console.log("[Done] Displacement");
-} catch {
+} catch (e) {
+  console.log("Error displacing course:", e);
   process.exit(1);
 }
 
@@ -210,6 +228,7 @@ console.log("Update DNS Records...");
 try {
   if (await fixDNS(config)) console.log("[Done] DNS Records");
   else console.log("[Skip] DNS Records");
-} catch {
+} catch (e) {
+  console.log("Error updating DNS records:", e);
   process.exit(2);
 }

@@ -1,4 +1,22 @@
-config/
-dist/
-node_modules/
-example/
+# Server configuration files
+cato.csv
+cato.pem
+
+# Ensure private key is never committed even if renamed
+*.pem
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Project directories
+/node_modules
+/config
+/dist
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+
