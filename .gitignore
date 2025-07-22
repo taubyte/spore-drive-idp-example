@@ -1,6 +1,6 @@
 # Server configuration files
-cato.csv
-cato.pem
+*.csv
+*.pem
 
 # Ensure private key is never committed even if renamed
 *.pem
@@ -12,7 +12,7 @@ cato.pem
 
 # Project directories
 /node_modules
-/config
+/config*
 /dist
 
 # IDE and OS files
