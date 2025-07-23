@@ -101,9 +101,9 @@ export const createConfig = async (config: Config) => {
 
   // using SSH key for authentication
   const mainAuth = config.auth.signer["main"];
-  await mainAuth.username.set(process.env.CATO_USER || "cato-user");
-  const sshkey = await fs.promises.readFile(process.env.SSH_KEY || "cato.pem");
-  await mainAuth.key.path.set("keys/cato.pem");
+  await mainAuth.username.set(process.env.SSH_USER || "ssh-user");
+  const sshkey = await fs.promises.readFile(process.env.SSH_KEY || "ssh-key.pem");
+  await mainAuth.key.path.set("keys/ssh-key.pem");
   await mainAuth.key.data.set(sshkey);
 
   const all = config.shapes.get("all");

@@ -7,7 +7,7 @@ interface ServerInfo {
 }
 
 export const getServersFromCSV = (): ServerInfo[] => {
-  const csvPath = process.env.SERVERS_CSV_PATH || 'cato.csv';
+  const csvPath = process.env.SERVERS_CSV_PATH || 'hosts.csv';
   
   try {
     const fileContent = readFileSync(csvPath, 'utf-8');

@@ -1,4 +1,4 @@
-# Build Your Own PaaS/IDP with [Cato Digital](https://cato.digital) Bare Metal Servers
+# Your Own PaaS/IDP as Code - A Spore Drive Example
 
 Creating a custom cloud platform brings powerful advantages—cost savings, full control, data sovereignty, and, crucially, the ability to make your solution self-hostable. This tool helps you deploy [Tau](https://github.com/taubyte/tau), an open-source PaaS/IDP, across your servers using [Spore-drive](https://www.npmjs.com/package/@taubyte/spore-drive).
 
@@ -11,7 +11,7 @@ Creating a custom cloud platform brings powerful advantages—cost savings, full
    ```
 
 2. **Prepare Server List**  
-   Create a CSV file (default: `cato.csv`) with your server information:
+   Create a CSV file (default: `hosts.csv`) with your server information:
    ```csv
    hostname,public_ip
    server1.example.com,192.168.1.1
@@ -27,9 +27,9 @@ Creating a custom cloud platform brings powerful advantages—cost savings, full
    The following variables can be configured in your `.env` file:
    ```bash
    # Server Configuration
-   SSH_KEY=cato.pem                    # Path to SSH private key
-   SERVERS_CSV_PATH=cato.csv           # Path to servers list
-   CATO_USER=cato-user                 # SSH user for server access
+   SSH_KEY=ssh-key.pem                    # Path to SSH private key
+   SERVERS_CSV_PATH=hosts.csv           # Path to servers list
+   SSH_USER=ssh-user                 # SSH user for server access
 
    # Domain Configuration
    ROOT_DOMAIN=pom.ac                  # Root domain for your platform
@@ -63,7 +63,7 @@ node2.mycloud.com,203.0.113.2
 ## Server Requirements
 
 - Linux servers with SSH access on port 22
-- User account (defaults to 'cato-user') with:
+- User account (defaults to 'ssh-user') with:
   - sudo/root privileges
   - SSH key authentication enabled
 
